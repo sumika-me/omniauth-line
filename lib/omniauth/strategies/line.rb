@@ -5,7 +5,7 @@ module OmniAuth
   module Strategies
     class Line < OmniAuth::Strategies::OAuth2
       option :name, 'line'
-      option :scope, 'profile openid'
+      option :scope, 'profile openid email'
 
       option :client_options, {
         site: 'https://access.line.me',
@@ -13,6 +13,10 @@ module OmniAuth
         token_url: '/oauth2/v2.1/token'
       }
 
+      def request_phase
+        original = client.auth_code.authorize_url({:redirect_uri => callback_url}.merge(authorize_params))
+        redirect original.gsub(/\+/, '%20') # scope must be concatenated by %20, not + https://developers.line.biz/ja/docs/line-login/web/integrate-line-login/
+      end
       # host changed
       def callback_phase
         options[:client_options][:site] = 'https://api.line.me'
