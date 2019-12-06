@@ -13,29 +13,26 @@ module OmniAuth
         token_url: '/oauth2/v2.1/token'
       }
 
-      def request_phase
-        original = client.auth_code.authorize_url({:redirect_uri => callback_url}.merge(authorize_params))
-        redirect original.gsub(/\+/, '%20') # scope must be concatenated by %20, not + https://developers.line.biz/ja/docs/line-login/web/integrate-line-login/
-      end
       # host changed
       def callback_phase
         options[:client_options][:site] = 'https://api.line.me'
         super
       end
 
-      uid { raw_info['userId'] }
+      uid { raw_info['sub'] }
 
       info do
         {
-          name:        raw_info['displayName'],
-          image:       raw_info['pictureUrl'],
-          description: raw_info['statusMessage']
+          name:        raw_info['name'],
+          image:       raw_info['picture'],
+          email:       raw_info['email']
         }
       end
 
       # Require: Access token with PROFILE permission issued.
       def raw_info
-        @raw_info ||= JSON.load(access_token.get('v2/profile').body)
+        # https://developers.line.biz/ja/reference/social-api/#get-user-profile
+        @raw_info ||= get_raw_info
       rescue ::Errno::ETIMEDOUT
         raise ::Timeout::Error
       end
@@ -43,6 +40,12 @@ module OmniAuth
       def callback_url
         options[:callback_url] || (full_host + script_name + callback_path)
       end
+
+      private
+        def get_raw_info
+          res = access_token.post("oauth2/v2.1/verify", {body: {id_token: access_token.params["id_token"], client_id: options[:client_id]}})
+          JSON.load(res.body)
+        end
     end
   end
 end
