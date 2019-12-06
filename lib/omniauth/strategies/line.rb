@@ -31,7 +31,6 @@ module OmniAuth
 
       # Require: Access token with PROFILE permission issued.
       def raw_info
-        # https://developers.line.biz/ja/reference/social-api/#get-user-profile
         @raw_info ||= get_raw_info
       rescue ::Errno::ETIMEDOUT
         raise ::Timeout::Error
@@ -43,6 +42,7 @@ module OmniAuth
 
       private
         def get_raw_info
+          # https://developers.line.biz/ja/reference/social-api/#verify-id-token
           res = access_token.post("oauth2/v2.1/verify", {body: {id_token: access_token.params["id_token"], client_id: options[:client_id]}})
           JSON.load(res.body)
         end
