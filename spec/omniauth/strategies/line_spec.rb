@@ -36,7 +36,7 @@ describe OmniAuth::Strategies::Line do
     end
 
     it 'should returns the uid' do
-      expect(subject.uid).to eq(raw_info_hash['mid'])
+      expect(subject.uid).to eq(raw_info_hash['sub'])
     end
   end
 
@@ -46,15 +46,15 @@ describe OmniAuth::Strategies::Line do
     end
 
     it 'should returns the name' do
-      expect(subject.info[:name]).to eq(raw_info_hash['displayName'])
+      expect(subject.info[:name]).to eq(raw_info_hash['name'])
     end
 
     it 'should returns the image' do
-      expect(subject.info[:image]).to eq(raw_info_hash['pictureUrl'])
+      expect(subject.info[:image]).to eq(raw_info_hash['picture'])
     end
 
     it 'should returns the description' do
-      expect(subject.info[:description]).to eq(raw_info_hash['statusMessage'])
+      expect(subject.info[:email]).to eq(raw_info_hash['email'])
     end
   end
 
@@ -79,9 +79,9 @@ private
 
 def raw_info_hash
   {
-    'uid'           => 'hoge',
-    'displayName'   => 'Foo Bar',
-    'pictureUrl'    => 'http://xxx.com/aaa.jpg',
-    'statusMessage' => 'Developer'
+    'sub'           => 'hoge',
+    'name'          => 'Foo Bar',
+    'picture'       => 'http://xxx.com/aaa.jpg',
+    'email'         => 'email@email.com'
   }
 end
