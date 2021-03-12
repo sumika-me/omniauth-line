@@ -5,6 +5,7 @@ module OmniAuth
   module Strategies
     class Line < OmniAuth::Strategies::OAuth2
       option :name, 'line'
+      option :authorize_options, %i[scope state bot_prompt]
       option :scope, 'profile openid email'
 
       option :client_options, {
@@ -12,6 +13,8 @@ module OmniAuth
         authorize_url: '/oauth2/v2.1/authorize',
         token_url: '/oauth2/v2.1/token'
       }
+
+      option :bot_prompt, 'normal'
 
       # host changed
       def callback_phase
@@ -41,11 +44,11 @@ module OmniAuth
       end
 
       private
-        def get_raw_info
-          # https://developers.line.biz/ja/reference/social-api/#verify-id-token
-          res = access_token.post("oauth2/v2.1/verify", {body: {id_token: access_token.params["id_token"], client_id: options[:client_id]}})
-          JSON.load(res.body)
-        end
+      def get_raw_info
+        # https://developers.line.biz/ja/reference/social-api/#verify-id-token
+        res = access_token.post("oauth2/v2.1/verify", {body: {id_token: access_token.params["id_token"], client_id: options[:client_id]}})
+        JSON.load(res.body)
+      end
     end
   end
 end
